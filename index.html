@@ -1,0 +1,231 @@
+<!doctype html>
+<html lang="id">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>SuratKu - Pembuat Surat Kelengkapan</title>
+<link rel="stylesheet" href="css/style.css">
+</head>
+<body>
+
+<!-- ============ TOP BAR ============ -->
+<header class="topbar">
+  <div class="topbar-in">
+    <div class="logo"><div class="logo-badge">S</div><div>SuratKu<small id="logo-sub">BPS</small></div></div>
+    <div class="top-right">
+      <span class="privacy">🔒 Data diproses di browser Anda — tidak ada yang dikirim ke server</span>
+      <button type="button" class="btn-kantor" id="btn-kantor">⚙️ Data kantor</button>
+    </div>
+  </div>
+</header>
+
+<main class="wrap">
+  <noscript><div class="note-box">Aplikasi ini butuh JavaScript. Aktifkan JavaScript di browser Anda.</div></noscript>
+
+  <!-- Step bar -->
+  <nav class="steps" id="stepbar" aria-label="Langkah"></nav>
+
+  <!-- Data kantor strip -->
+  <div class="kantor-strip" id="kantor-strip">
+    <div class="strip-info" id="strip-info"></div>
+    <div class="strip-actions">
+      <button type="button" class="edit" id="strip-import" hidden>Buka dari file</button>
+      <button type="button" class="edit" id="strip-edit">Ubah ›</button>
+    </div>
+  </div>
+
+  <!-- ================= PAGE 1 : KATEGORI ================= -->
+  <section class="page" id="page-home">
+    <div class="hero">
+      <h1>Buat surat dalam beberapa klik</h1>
+      <p>Pilih kategori kelengkapan, centang surat yang dibutuhkan, isi datanya, lalu unduh file Word. Pilih satu atau banyak surat sekaligus.</p>
+    </div>
+    <div class="section-head">
+      <span class="tag">LANGKAH 1</span>
+      <h2>Pilih kategori kelengkapan</h2>
+      <span class="sub">— kategori berisi beberapa jenis surat</span>
+    </div>
+    <div class="cat-grid" id="category-grid"></div>
+  </section>
+
+  <!-- ================= PAGE 2 : PILIH SURAT ================= -->
+  <section class="page" id="page-letters">
+    <button type="button" class="back-link" data-go="home">‹ Kembali ke kategori</button>
+    <div class="card panel">
+      <div class="section-head tight">
+        <span class="tag">LANGKAH 1</span>
+        <h2 id="letters-title"></h2>
+      </div>
+      <p class="sub-text">Centang satu atau beberapa surat yang ingin dibuat.</p>
+      <div class="sel-toolbar">
+        <button type="button" class="btn-ghost" id="sel-all">☑ Pilih semua</button>
+        <button type="button" class="btn-ghost" id="sel-none">Hapus pilihan</button>
+        <span class="sel-count" id="sel-count" aria-live="polite"></span>
+      </div>
+      <div class="letter-grid" id="letter-grid"></div>
+      <p class="note-box soon-note" id="letters-note" hidden></p>
+      <div class="actions">
+        <button type="button" class="btn btn-primary" id="to-method" disabled>Lanjut: pilih cara isi →</button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PAGE 3 : METODE ================= -->
+  <section class="page" id="page-method">
+    <button type="button" class="back-link" data-go="letters">‹ Ubah pilihan surat</button>
+    <div class="section-head">
+      <span class="tag">LANGKAH 1</span>
+      <h2>Bagaimana cara mengisi datanya?</h2>
+    </div>
+    <div class="card panel">
+      <div class="caps">SURAT YANG DIPILIH:</div>
+      <div class="chips" id="method-chips"></div>
+      <hr class="sep">
+      <div class="method-grid">
+        <button type="button" class="method-card" data-method="form">
+          <span class="mi">📝</span><span class="mn">Satu surat</span>
+          <span class="md">Isi lewat formulir di halaman ini. Cocok untuk 1–2 surat.</span>
+        </button>
+        <button type="button" class="method-card" data-method="excel">
+          <span class="mi">📊</span><span class="mn">Banyak surat dari Excel</span>
+          <span class="md">Unggah satu workbook .xlsx berisi data kegiatan — tab Kegiatan, Petugas, dan tab tiap surat.</span>
+          <span class="upload-zone">Template workbook tersedia di langkah berikutnya</span>
+        </button>
+        <button type="button" class="method-card" data-method="sheets">
+          <span class="mi">🔗</span><span class="mn">Dari Google Sheets</span>
+          <span class="md">Tempel link workbook yang sudah dibagikan (struktur tab sama dengan Excel).</span>
+          <span class="upload-zone">https://docs.google.com/spreadsheets/d/…</span>
+        </button>
+      </div>
+    </div>
+  </section>
+
+  <!-- ================= PAGE 4 : ISI DATA ================= -->
+  <section class="page" id="page-form">
+    <button type="button" class="back-link" data-go="method">‹ Kembali</button>
+    <div class="section-head">
+      <span class="tag">LANGKAH 2</span>
+      <h2>Isi data surat</h2>
+      <span class="sub" id="form-mode-label"></span>
+    </div>
+    <div class="tabs" id="form-tabs" role="tablist"></div>
+    <div class="card panel" id="form-body"></div>
+    <div class="actions">
+      <button type="button" class="btn btn-outline" data-go="method">‹ Kembali</button>
+      <button type="button" class="btn btn-primary" id="to-review">Periksa &amp; buat surat →</button>
+    </div>
+  </section>
+
+  <!-- ================= PAGE 5 : BUAT & UNDUH ================= -->
+  <section class="page" id="page-review">
+    <button type="button" class="back-link" id="review-back">‹ Kembali ke isian</button>
+    <div class="section-head">
+      <span class="tag">LANGKAH 3</span>
+      <h2 id="review-title">Hampir siap</h2>
+    </div>
+    <div class="review-grid">
+      <div class="card val-box">
+        <div class="val-ok" id="val-summary" aria-live="polite"></div>
+        <div id="val-issues"></div>
+        <div class="note-box" id="val-note">Kolom yang salah akan ditandai merah saat Anda kembali ke halaman isian.</div>
+      </div>
+      <div>
+        <div class="caps">YANG AKAN DIBUAT</div>
+        <div id="file-list"></div>
+        <button type="button" class="btn btn-accent wide" id="btn-generate">⬇ Buat surat (.docx)</button>
+        <button type="button" class="btn btn-outline wide" id="btn-generate-valid" hidden></button>
+        <p class="gen-msg" id="gen-msg" aria-live="polite"></p>
+      </div>
+    </div>
+
+    <!-- pratinjau surat (mode Satu surat): nilai berwarna kuning bisa diklik untuk diubah -->
+    <div class="card panel pv-card" id="pv-card" hidden>
+      <div class="pv-head">
+        <div>
+          <h3>Pratinjau surat</h3>
+          <p class="muted"><mark class="pv-legend">Bagian berwarna kuning</mark> bisa diklik untuk diubah langsung.
+            Tampilan di Word (huruf, jarak, pemisah halaman) bisa sedikit berbeda.</p>
+        </div>
+        <button type="button" class="btn btn-outline btn-sm" id="pv-zoom" aria-pressed="false">Ukuran asli</button>
+      </div>
+      <div class="tabs" id="pv-tabs" role="tablist"></div>
+      <div class="pv-wrap">
+        <div class="pv-box" id="pv-box" aria-label="Pratinjau surat"></div>
+        <div class="pv-pop" id="pv-pop" hidden></div>
+      </div>
+    </div>
+  </section>
+
+  <footer class="foot">
+    Hasilnya file Word (.docx). Untuk PDF: buka di Word, lalu File → Simpan sebagai → PDF.
+    Nomor surat diketik sendiri; aplikasi tidak menyimpan riwayat surat.
+  </footer>
+</main>
+
+<!-- ============ MODAL: DATA KANTOR ============ -->
+<div class="overlay" id="modal-kantor" role="dialog" aria-modal="true" aria-labelledby="kantor-title">
+  <div class="modal">
+    <h3 id="kantor-title">⚙️ Data kantor</h3>
+    <p class="hint lead">Isi sekali, tersimpan di browser ini. Dipakai di semua surat. NIP harus 18 angka (spasi boleh).</p>
+    <div id="kantor-fields"></div>
+    <div class="file-actions">
+      <button type="button" class="btn-link" id="kantor-export">Simpan pengaturan ke file</button>
+      <button type="button" class="btn-link" id="kantor-import-btn">Buka pengaturan dari file</button>
+      <button type="button" class="btn-link" id="kantor-reset">Kembalikan bawaan</button>
+      <input type="file" id="kantor-import" accept=".json,application/json" hidden>
+    </div>
+    <p class="hint" id="kantor-msg" aria-live="polite">Tip: setelah NIP terisi, simpan pengaturan ke file lalu kirim ke rekan, supaya mereka tidak perlu mengetik ulang.</p>
+    <div class="actions">
+      <button type="button" class="btn btn-outline" id="kantor-cancel">Batal</button>
+      <button type="button" class="btn btn-primary" id="kantor-save">Simpan</button>
+    </div>
+  </div>
+</div>
+
+<!-- ============ MODAL: SUKSES ============ -->
+<div class="overlay" id="modal-success" role="dialog" aria-modal="true" aria-labelledby="success-title">
+  <div class="modal center">
+    <div class="success-ico">✓</div>
+    <h3 id="success-title">Surat berhasil dibuat!</h3>
+    <p class="success-text" id="success-text">File Word (.docx) sudah diunduh. Buka di Word, periksa isinya, lalu cetak. Untuk PDF: File → Simpan sebagai → PDF.</p>
+    <div id="success-files"></div>
+    <div class="actions centered">
+      <button type="button" class="btn btn-outline" id="success-close">Tutup</button>
+      <button type="button" class="btn btn-primary" id="success-reset">Buat surat lagi</button>
+    </div>
+  </div>
+</div>
+
+<div class="toast" id="toast" role="status" aria-live="polite"></div>
+
+<!-- ============ PRATINJAU SATU SURAT DARI EXCEL / SHEETS (hanya dibaca) ============ -->
+<dialog id="pv-modal" class="pvm" aria-labelledby="pvm-title">
+  <div class="pvm-head">
+    <b id="pvm-title">Pratinjau surat</b>
+    <div class="row">
+      <button type="button" class="btn btn-outline btn-sm" id="pvm-zoom">Ukuran asli</button>
+      <button type="button" class="btn btn-outline btn-sm" id="pvm-prev">&larr; Sebelumnya</button>
+      <button type="button" class="btn btn-outline btn-sm" id="pvm-next">Berikutnya &rarr;</button>
+      <button type="button" class="btn btn-primary btn-sm" id="pvm-close">Tutup</button>
+    </div>
+  </div>
+  <p class="muted">Pratinjau ini hanya untuk dibaca; tampilan di Word (huruf, jarak, halaman) bisa sedikit berbeda. Untuk mengubah isinya, perbaiki di Excel atau Google Sheets lalu periksa lagi.</p>
+  <p class="note-box" id="pvm-warn" hidden></p>
+  <div class="pv-box pv-big" id="pvm-box" aria-label="Pratinjau surat"></div>
+</dialog>
+
+<script src="vendor/pizzip.min.js"></script>
+<script src="vendor/jszip.min.js"></script>
+<script src="vendor/docx-preview.min.js"></script>
+<script src="vendor/docxtemplater.min.js"></script>
+<script src="vendor/exceljs.min.js"></script>
+<script src="js/words.js"></script>
+<script src="js/config.js"></script>
+<script src="js/docs.js"></script>
+<script src="js/generate.js"></script>
+<script src="js/preview.js"></script>
+<script src="js/sheets.js"></script>
+<script src="js/workbook.js"></script>
+<script src="js/app.js"></script>
+</body>
+</html>

@@ -1,0 +1,37 @@
+{% extends "base.html" %}
+{% block title %}Pengguna{% endblock %}
+{% block content %}
+<h1>Pengguna</h1>
+{% include "admin/_nav.html" %}
+
+<div class="card">
+  <h2>Tambah pengguna</h2>
+  <form method="post" action="/admin/users" class="inline-grid">
+    <label>Nama lengkap <input name="full_name" required></label>
+    <label>Username <input name="username" required autocomplete="off"></label>
+    <label>Password awal <span class="muted small">(min. 8)</span><input name="password" type="password" required minlength="8" autocomplete="new-password"></label>
+    <label class="check"><input type="checkbox" name="is_admin"> Jadikan admin</label>
+    <button class="btn primary" type="submit">Tambah</button>
+  </form>
+</div>
+
+<div class="card flush">
+<table class="tbl">
+  <thead><tr><th>Nama</th><th>Username</th><th>Admin</th><th>Aktif</th><th>Password baru (opsional)</th><th></th></tr></thead>
+  <tbody>
+  {% for u in users %}
+  <tr class="{{ 'cancelled' if not u.is_active }}">
+    <td><form id="uf-{{ u.id }}" method="post" action="/admin/users/{{ u.id }}"></form>
+        <input form="uf-{{ u.id }}" name="full_name" value="{{ u.full_name }}"></td>
+    <td class="mono">{{ u.username }}</td>
+    <td><input form="uf-{{ u.id }}" type="checkbox" name="is_admin" {{ 'checked' if u.is_admin }}></td>
+    <td><input form="uf-{{ u.id }}" type="checkbox" name="is_active" {{ 'checked' if u.is_active }}></td>
+    <td><input form="uf-{{ u.id }}" name="password" type="password" placeholder="kosongkan jika tidak diganti" autocomplete="new-password"></td>
+    <td class="right"><button form="uf-{{ u.id }}" class="btn small" type="submit">Simpan</button></td>
+  </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<p class="muted small">Pengguna tidak dihapus, hanya dinonaktifkan, supaya catatan "siapa membuat dokumen apa" tetap utuh.</p>
+{% endblock %}

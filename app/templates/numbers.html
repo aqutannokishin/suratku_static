@@ -1,0 +1,58 @@
+{% extends "base.html" %}
+{% block title %}Nomor surat{% endblock %}
+{% block content %}
+<h1>Daftar nomor surat</h1>
+{% if not cur %}
+  <p class="muted">Belum ada seri nomor.</p>
+{% else %}
+<form method="get" class="filters">
+  <select name="series" onchange="this.form.submit()">
+    {% for s in all_series %}<option value="{{ s.code }}" {{ 'selected' if s.id == cur.id }}>{{ s.code }} — {{ s.name }}</option>{% endfor %}
+  </select>
+  <select name="period" onchange="this.form.submit()">
+    {% for p in periods %}<option value="{{ p }}" {{ 'selected' if p == period }}>Periode {{ p }}</option>{% endfor %}
+  </select>
+  <span class="muted small">Pola: <span class="mono">{{ cur.pattern }}</span> · reset: {{ {'yearly':'tiap tahun','monthly':'tiap bulan','never':'tidak pernah'}[cur.reset] }}</span>
+</form>
+
+<div class="card flush">
+<table class="tbl">
+  <thead><tr><th>Nomor</th><th>Status</th><th>Diambil oleh</th><th>Waktu</th><th>Keterangan</th>{% if user.is_admin %}<th></th>{% endif %}</tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr class="{{ 'cancelled' if r.status == 'void' }}">
+      <td class="mono">{{ r.formatted }}</td>
+      <td>
+        {% if r.status == 'used' %}<span class="badge ok">dipakai</span>
+        {% elif r.status == 'reserved' %}<span class="badge warn">diambil, belum jadi dokumen</span>
+        {% else %}<span class="badge void">batal</span>{% endif %}
+      </td>
+      <td>{{ r.user.full_name if r.user else '-' }}</td>
+      <td>{{ r.reserved_at|dt }}</td>
+      <td>
+        {% if r.id in docs %}<a href="/documents/{{ docs[r.id].id }}/download?fmt=docx">dokumen #{{ docs[r.id].id }}</a>{% endif %}
+        {% if r.void_reason %}<span class="muted small">{{ r.void_reason }}</span>{% endif %}
+      </td>
+      {% if user.is_admin %}
+      <td class="right">
+        {% if r.status != 'used' and r.status != 'void' %}
+        <details class="inline-pop">
+          <summary class="link">Batalkan</summary>
+          <form method="post" action="/numbers/{{ r.id }}/void" class="pop">
+            <input name="reason" placeholder="Alasan" required>
+            <button class="btn small danger" type="submit">Batalkan nomor</button>
+          </form>
+        </details>
+        {% endif %}
+      </td>
+      {% endif %}
+    </tr>
+  {% else %}
+    <tr><td colspan="6" class="muted center">Belum ada nomor di periode ini.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<p class="muted small">Nomor yang sudah dipakai dokumen tidak bisa dibatalkan di sini. Batalkan dokumennya lewat menu Riwayat (admin).</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,9 @@
+<nav class="subnav">
+  <a href="/admin" class="{{ 'on' if request.url.path == '/admin' }}">Ringkasan</a>
+  <a href="/admin/users" class="{{ 'on' if request.url.path == '/admin/users' }}">Pengguna</a>
+  <a href="/admin/people" class="{{ 'on' if request.url.path.startswith('/admin/people') }}">Data orang</a>
+  <a href="/admin/lists" class="{{ 'on' if request.url.path == '/admin/lists' }}">Golongan &amp; jabatan</a>
+  <a href="/admin/series" class="{{ 'on' if request.url.path == '/admin/series' }}">Seri nomor</a>
+  <a href="/admin/templates" class="{{ 'on' if request.url.path == '/admin/templates' }}">Template Word</a>
+  <a href="/admin/audit" class="{{ 'on' if request.url.path == '/admin/audit' }}">Log aktivitas</a>
+</nav>

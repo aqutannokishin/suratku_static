@@ -1,0 +1,42 @@
+{# Satu baris orang. Dipakai langsung dan sebagai cetakan <template> untuk tombol "Tambah orang". #}
+{% macro person_row(key, idx, data, golongan, jabatan, roles, removable=True) %}
+{% set pre = namespace(g=data.get('golongan',''), j=data.get('jabatan',''), r=data.get('role','')) %}
+<div class="person-row" data-key="{{ key }}" data-idx="{{ idx }}">
+  <div class="pr-head">
+    <div class="pr-pick">
+      <label class="small muted">Cari dari data master</label>
+      <select class="person-pick" placeholder="Ketik nama atau NIP…"></select>
+    </div>
+    {% if removable %}<button type="button" class="btn small ghost rm-row" title="Hapus baris ini">Hapus</button>{% endif %}
+  </div>
+  <input type="hidden" name="{{ key }}__{{ idx }}__id" value="{{ data.get('id','') }}">
+  <div class="pr-grid">
+    <label>Nama <span class="req">*</span>
+      <input name="{{ key }}__{{ idx }}__name" value="{{ data.get('name','') }}" autocomplete="off" required>
+    </label>
+    <label>NIP <span class="muted small">(18 digit; kosongkan untuk mitra)</span>
+      <input name="{{ key }}__{{ idx }}__nip" value="{{ data.get('nip','') }}" inputmode="numeric" autocomplete="off" maxlength="30">
+    </label>
+    <label>Golongan
+      <select name="{{ key }}__{{ idx }}__golongan" class="tom-free" data-ph="Pilih, atau ketik golongan lain">
+        <option value=""></option>
+        {% for g in golongan %}<option value="{{ g.code }}" {{ 'selected' if g.code == pre.g }}>{{ g.code }}{% if g.pangkat %} - {{ g.pangkat }}{% endif %}</option>{% endfor %}
+        {% if pre.g and pre.g not in golongan|map(attribute='code')|list %}<option value="{{ pre.g }}" selected>{{ pre.g }}</option>{% endif %}
+      </select>
+    </label>
+    <label>Jabatan
+      <select name="{{ key }}__{{ idx }}__jabatan" class="tom-free" data-ph="Pilih, atau ketik jabatan lain">
+        <option value=""></option>
+        {% for j in jabatan %}<option value="{{ j.name }}" {{ 'selected' if j.name == pre.j }}>{{ j.name }}</option>{% endfor %}
+        {% if pre.j and pre.j not in jabatan|map(attribute='name')|list %}<option value="{{ pre.j }}" selected>{{ pre.j }}</option>{% endif %}
+      </select>
+    </label>
+    <label>Peran
+      <select name="{{ key }}__{{ idx }}__role" class="tom-free" data-ph="Pilih, atau ketik peran lain">
+        {% for r in roles %}<option value="{{ r.name }}" {{ 'selected' if r.name == (pre.r or 'Pegawai') }}>{{ r.name }}</option>{% endfor %}
+        {% if pre.r and pre.r not in roles|map(attribute='name')|list %}<option value="{{ pre.r }}" selected>{{ pre.r }}</option>{% endif %}
+      </select>
+    </label>
+  </div>
+</div>
+{% endmacro %}

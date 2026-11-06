@@ -1,0 +1,84 @@
+{% extends "base.html" %}
+{% block title %}Data orang{% endblock %}
+{% block content %}
+<h1>Data orang</h1>
+{% include "admin/_nav.html" %}
+
+<div class="row-actions">
+  <a class="btn" href="/admin/people-import">Impor dari Excel</a>
+</div>
+
+<details class="card" {{ 'open' if not rows }}>
+  <summary><b>+ Tambah orang</b></summary>
+  <form method="post" action="/admin/people" class="inline-grid" style="margin-top:.8rem">
+    <label>Nama <span class="req">*</span><input name="name" required></label>
+    <label>NIP <span class="muted small">(18 digit, boleh kosong)</span><input name="nip" inputmode="numeric"></label>
+    <label>Golongan
+      <select name="golongan" class="tom-free" data-ph="Pilih / ketik"><option value=""></option>
+      {% for g in golongan %}<option value="{{ g.code }}">{{ g.code }}{% if g.pangkat %} - {{ g.pangkat }}{% endif %}</option>{% endfor %}</select></label>
+    <label>Jabatan
+      <select name="jabatan" class="tom-free" data-ph="Pilih / ketik"><option value=""></option>
+      {% for j in jabatan %}<option value="{{ j.name }}">{{ j.name }}</option>{% endfor %}</select></label>
+    <label>Peran
+      <select name="role" class="tom-free" data-ph="Pilih / ketik">
+      {% for r in roles %}<option value="{{ r.name }}">{{ r.name }}</option>{% endfor %}</select></label>
+    <button class="btn primary" type="submit">Simpan</button>
+  </form>
+</details>
+
+<form method="get" class="filters">
+  <input name="q" value="{{ q }}" placeholder="Cari nama atau NIP…">
+  <select name="show" onchange="this.form.submit()">
+    <option value="active" {{ 'selected' if show == 'active' }}>Aktif</option>
+    <option value="inactive" {{ 'selected' if show == 'inactive' }}>Nonaktif</option>
+    <option value="all" {{ 'selected' if show == 'all' }}>Semua</option>
+  </select>
+  <button class="btn" type="submit">Cari</button>
+  <span class="muted small">{{ total }} orang</span>
+</form>
+
+<div class="card flush">
+<table class="tbl">
+  <thead><tr><th>Nama</th><th>NIP</th><th>Gol.</th><th>Jabatan</th><th>Peran</th><th>Aktif</th><th></th></tr></thead>
+  <tbody>
+  {% for p in rows %}
+  <tr class="{{ 'cancelled' if not p.is_active }}">
+    <td><form id="pf-{{ p.id }}" method="post" action="/admin/people/{{ p.id }}"></form>
+        <input form="pf-{{ p.id }}" name="name" value="{{ p.name }}" required></td>
+    <td><input form="pf-{{ p.id }}" name="nip" value="{{ p.nip or '' }}" class="mono w-nip" inputmode="numeric"></td>
+    <td><input form="pf-{{ p.id }}" name="golongan" value="{{ p.golongan.code if p.golongan else '' }}" list="dl-gol" class="w-sm"></td>
+    <td><input form="pf-{{ p.id }}" name="jabatan" value="{{ p.jabatan.name if p.jabatan else '' }}" list="dl-jab"></td>
+    <td><input form="pf-{{ p.id }}" name="role" value="{{ p.role.name }}" list="dl-role" class="w-sm"></td>
+    <td><input form="pf-{{ p.id }}" type="checkbox" name="is_active" {{ 'checked' if p.is_active }}></td>
+    <td class="right"><button form="pf-{{ p.id }}" class="btn small" type="submit">Simpan</button></td>
+  </tr>
+  {% else %}
+  <tr><td colspan="7" class="muted center">Belum ada data. Tambah satu per satu, impor dari Excel, atau cukup ketik nama baru langsung di formulir dokumen.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+<datalist id="dl-gol">{% for g in golongan %}<option value="{{ g.code }}">{% endfor %}</datalist>
+<datalist id="dl-jab">{% for j in jabatan %}<option value="{{ j.name }}">{% endfor %}</datalist>
+<datalist id="dl-role">{% for r in roles %}<option value="{{ r.name }}">{% endfor %}</datalist>
+
+{% if pages > 1 %}
+<div class="pager">
+  {% if page > 1 %}<a class="btn small" href="?q={{ q }}&show={{ show }}&page={{ page - 1 }}">‹ Sebelumnya</a>{% endif %}
+  <span class="muted small">Halaman {{ page }} dari {{ pages }}</span>
+  {% if page < pages %}<a class="btn small" href="?q={{ q }}&show={{ show }}&page={{ page + 1 }}">Berikutnya ›</a>{% endif %}
+</div>
+{% endif %}
+
+<div class="card">
+  <h2>Gabungkan data ganda</h2>
+  <p class="muted small">Kalau satu orang tercatat dua kali: pilih yang <b>dihapus</b> (akan dinonaktifkan) dan yang <b>dipertahankan</b>. Dokumen lama tidak berubah.</p>
+  <form method="post" action="/admin/people-merge" class="inline-grid" data-confirm="Gabungkan dua data ini? Yang pertama akan dinonaktifkan.">
+    <label>Nonaktifkan (ganda)
+      <select name="source" class="people-merge" data-ph="Cari nama…"></select></label>
+    <label>Pertahankan
+      <select name="target" class="people-merge" data-ph="Cari nama…"></select></label>
+    <button class="btn" type="submit">Gabungkan</button>
+  </form>
+</div>
+{% endblock %}

@@ -1,0 +1,56 @@
+{% extends "base.html" %}
+{% block title %}Template Word{% endblock %}
+{% block content %}
+<h1>Template Word</h1>
+{% include "admin/_nav.html" %}
+
+<div class="card">
+  <h3>Cara membuat / mengganti template</h3>
+  <ol class="steps">
+    <li>Unduh template yang aktif (tombol di bawah) sebagai contoh, atau mulai dari surat resmi Anda.</li>
+    <li>Buka di Microsoft Word. Di tempat data akan muncul, ketik <span class="mono">{{ '{{ nama_variabel }}' }}</span>, mis. <span class="mono">{{ '{{ nomor }}' }}</span>. Lihat daftar variabel di bawah tiap jenis dokumen.</li>
+    <li>Ketik tiap tanda <b>sekaligus tanpa berhenti</b> dan jangan ubah format (tebal/miring) di tengah tanda.</li>
+    <li>Simpan sebagai <b>.docx</b>, lalu unggah. Sistem memeriksa dan mengujinya; kalau ada salah ketik, akan ditolak beserta alasannya.</li>
+  </ol>
+</div>
+
+{% for s in specs %}
+<div class="card">
+  <h2>{{ s.name }}</h2>
+  <table class="tbl compact">
+    <thead><tr><th>Versi</th><th>Status</th><th>Diunggah</th><th>Catatan</th><th></th></tr></thead>
+    <tbody>
+    {% for v in versions[s.code] %}
+      <tr>
+        <td>v{{ v.version }}</td>
+        <td>{% if v.is_active %}<span class="badge ok">aktif</span>{% else %}<span class="badge">arsip</span>{% endif %}</td>
+        <td>{{ v.uploaded_at|dt }}</td>
+        <td>{{ v.note or '' }}</td>
+        <td class="right">
+          <a href="/admin/templates/download/{{ v.id }}">Unduh</a>
+          {% if not v.is_active %}
+          <form method="post" action="/admin/templates/{{ s.code }}/activate/{{ v.id }}" style="display:inline">
+            <button class="link" type="submit">Aktifkan</button></form>
+          {% endif %}
+        </td>
+      </tr>
+    {% else %}<tr><td colspan="5" class="muted">Belum ada template. Unggah di bawah.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+
+  <form method="post" action="/admin/templates/{{ s.code }}" enctype="multipart/form-data" class="inline-grid" style="margin-top:.8rem">
+    <label>File template (.docx) <input type="file" name="file" accept=".docx" required></label>
+    <label>Catatan <input name="note" placeholder="mis. revisi kop surat"></label>
+    <button class="btn primary" type="submit">Unggah versi baru</button>
+  </form>
+
+  <details style="margin-top:.8rem">
+    <summary>Daftar variabel yang boleh dipakai</summary>
+    <table class="tbl compact">
+      {% for var, desc in helps[s.code] %}<tr><td class="mono">{{ var }}</td><td>{{ desc }}</td></tr>{% endfor %}
+    </table>
+    <p class="muted small">Teks yang berisi baris baru (mis. isian "Kegiatan" dengan banyak baris) otomatis jadi baris baru di Word.</p>
+  </details>
+</div>
+{% endfor %}
+{% endblock %}

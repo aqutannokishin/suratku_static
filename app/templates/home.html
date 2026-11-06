@@ -1,0 +1,40 @@
+{% extends "base.html" %}
+{% block title %}Beranda{% endblock %}
+{% block content %}
+<h1>Buat dokumen</h1>
+<p class="muted">Pilih jenis dokumen. Nomor surat, nama, NIP, golongan, dan jabatan tinggal dipilih dari daftar.</p>
+<div class="grid cards">
+  {% for s in specs %}
+  <a class="card tile" href="/documents/new/{{ s.code }}">
+    <h3>{{ s.name }}</h3>
+    <p class="muted">{{ s.description }}</p>
+    <span class="tile-foot">{% if s.series %}Nomor otomatis · seri {{ s.series }}{% else %}Tanpa nomor surat{% endif %}</span>
+  </a>
+  {% endfor %}
+</div>
+
+<h2>Dokumen terbaru</h2>
+{% if recent %}
+<div class="card flush">
+<table class="tbl">
+  <thead><tr><th>Waktu</th><th>Jenis</th><th>Nomor</th><th>Dibuat oleh</th><th></th></tr></thead>
+  <tbody>
+  {% for d in recent %}
+    <tr class="{{ 'cancelled' if d.cancelled }}">
+      <td>{{ d.created_at|dt }}</td>
+      <td>{{ REGISTRY[d.doctype_code].name if d.doctype_code in REGISTRY else d.doctype_code }}</td>
+      <td class="mono">{{ d.nomor or '-' }}{% if d.cancelled %} <span class="badge void">batal</span>{% endif %}</td>
+      <td>{{ d.user.full_name }}</td>
+      <td class="right">
+        <a href="/documents/{{ d.id }}/download?fmt=docx">Word</a>
+        {% if d.pdf_path %} · <a href="/documents/{{ d.id }}/download?fmt=pdf">PDF</a>{% endif %}
+      </td>
+    </tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+{% else %}
+<p class="muted">Belum ada dokumen yang dibuat.</p>
+{% endif %}
+{% endblock %}

@@ -1,0 +1,34 @@
+{% extends "base.html" %}
+{% block title %}Impor data orang{% endblock %}
+{% block content %}
+<h1>Impor data orang dari Excel</h1>
+{% include "admin/_nav.html" %}
+
+<div class="card">
+  <ol class="steps">
+    <li>Unduh template: <a class="btn small" href="/admin/people-template.xlsx">template-data-orang.xlsx</a></li>
+    <li>Isi kolom <b>Nama, NIP, Golongan, Jabatan, Role</b>. Hapus dua baris contoh. NIP boleh kosong untuk mitra.</li>
+    <li>Simpan sebagai <b>.xlsx</b>, lalu unggah di bawah.</li>
+  </ol>
+  <form method="post" action="/admin/people-import" enctype="multipart/form-data" class="inline-grid">
+    <label>File Excel <input type="file" name="file" accept=".xlsx" required></label>
+    <button class="btn primary" type="submit">Impor</button>
+  </form>
+  <p class="muted small">Aman diulang: orang yang sudah ada (NIP sama, atau nama sama tanpa NIP) diperbarui, bukan digandakan.</p>
+</div>
+
+{% if result %}
+<div class="card">
+  <h2>Hasil impor</h2>
+  <p><span class="badge ok">{{ result.added }} ditambah</span>
+     <span class="badge warn">{{ result.updated }} diperbarui</span>
+     <span class="badge">{{ result.skipped }} dilewati</span>
+     {% if result.errors %}<span class="badge void">{{ result.errors|length }} baris bermasalah</span>{% endif %}</p>
+  {% if result.errors %}
+  <p>Baris berikut tidak diimpor. Perbaiki di Excel lalu unggah ulang (baris yang sudah berhasil tidak akan digandakan):</p>
+  <ul>{% for e in result.errors %}<li>{{ e }}</li>{% endfor %}</ul>
+  {% endif %}
+  <a class="btn" href="/admin/people">Lihat data orang</a>
+</div>
+{% endif %}
+{% endblock %}

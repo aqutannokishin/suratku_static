@@ -1,0 +1,21 @@
+{% extends "base.html" %}
+{% block title %}Masuk{% endblock %}
+{% block mainclass %}narrow center{% endblock %}
+{% block content %}
+<div class="card auth">
+  <div class="brand big"><span class="brand-mark">S</span>{{ settings.app_name }}</div>
+  {% if settings.org_name %}<p class="muted">{{ settings.org_name }}</p>{% endif %}
+  <h1>Masuk</h1>
+  {% if error %}<div class="flash error">{{ error }}</div>{% endif %}
+  <form method="post" action="/login" autocomplete="on">
+    <label>Username
+      <input name="username" value="{{ username or '' }}" autofocus required autocomplete="username">
+    </label>
+    <label>Password
+      <input name="password" type="password" required autocomplete="current-password">
+    </label>
+    <button class="btn primary wide" type="submit">Masuk</button>
+  </form>
+  <p class="muted small">Lupa password? Minta admin mengatur ulang di menu Admin &gt; Pengguna.</p>
+</div>
+{% endblock %}

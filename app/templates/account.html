@@ -1,0 +1,18 @@
+{% extends "base.html" %}
+{% block title %}Akun saya{% endblock %}
+{% block mainclass %}narrow{% endblock %}
+{% block content %}
+<h1>Akun saya</h1>
+<div class="card">
+  <p><b>{{ user.full_name }}</b> <span class="muted">({{ user.username }}){% if user.is_admin %} · admin{% endif %}</span></p>
+  <h2>Ganti password</h2>
+  {% if error %}<div class="flash error">{{ error }}</div>{% endif %}
+  <form method="post" action="/account">
+    <label>Password lama <input name="current" type="password" required autocomplete="current-password"></label>
+    <label>Password baru <span class="muted small">(minimal 8 karakter)</span>
+      <input name="new1" type="password" required minlength="8" autocomplete="new-password"></label>
+    <label>Ulangi password baru <input name="new2" type="password" required minlength="8" autocomplete="new-password"></label>
+    <button class="btn primary" type="submit">Simpan password</button>
+  </form>
+</div>
+{% endblock %}

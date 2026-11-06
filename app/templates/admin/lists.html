@@ -1,0 +1,44 @@
+{% extends "base.html" %}
+{% block title %}Golongan & jabatan{% endblock %}
+{% block content %}
+<h1>Golongan, jabatan, dan peran</h1>
+{% include "admin/_nav.html" %}
+
+<div class="cols">
+<div class="card">
+  <h2>Golongan</h2>
+  <table class="tbl compact">
+    <thead><tr><th>Kode</th><th>Pangkat</th></tr></thead>
+    <tbody>{% for g in golongan %}<tr><td class="mono">{{ g.code }}</td><td>{{ g.pangkat }}</td></tr>{% endfor %}</tbody>
+  </table>
+  <form method="post" action="/admin/lists/golongan" class="inline-grid" style="margin-top:.8rem">
+    <label>Kode <input name="code" placeholder="mis. IX atau PPPK" required></label>
+    <label>Nama pangkat <input name="pangkat" placeholder="opsional"></label>
+    <button class="btn" type="submit">Tambah / ubah</button>
+  </form>
+  <p class="muted small">Kode yang sudah ada akan diubah nama pangkatnya.</p>
+</div>
+
+<div class="card">
+  <h2>Jabatan</h2>
+  <p class="muted small">Jabatan baru otomatis tersimpan saat diketik di formulir. Di sini Anda bisa memperbaiki ejaannya.</p>
+  <table class="tbl compact">
+    <tbody>
+    {% for j in jabatan %}
+      <tr>
+        <td><form id="jf-{{ j.id }}" method="post" action="/admin/lists/jabatan/{{ j.id }}"></form>
+            <input form="jf-{{ j.id }}" name="name" value="{{ j.name }}"></td>
+        <td class="right"><button form="jf-{{ j.id }}" class="btn small" type="submit">Simpan</button></td>
+      </tr>
+    {% else %}<tr><td class="muted">Belum ada jabatan.</td></tr>{% endfor %}
+    </tbody>
+  </table>
+</div>
+
+<div class="card">
+  <h2>Peran</h2>
+  <ul>{% for r in roles %}<li>{{ r.name }}</li>{% endfor %}</ul>
+  <p class="muted small">Peran baru dibuat otomatis lewat pilihan "ketik peran lain" di formulir.</p>
+</div>
+</div>
+{% endblock %}

@@ -1,0 +1,36 @@
+{% extends "base.html" %}
+{% block title %}Log aktivitas{% endblock %}
+{% block content %}
+<h1>Log aktivitas</h1>
+{% include "admin/_nav.html" %}
+<form method="get" class="filters">
+  <select name="action" onchange="this.form.submit()">
+    <option value="">Semua aktivitas</option>
+    {% for a in actions %}<option value="{{ a }}" {{ 'selected' if a == action }}>{{ a }}</option>{% endfor %}
+  </select>
+  <span class="muted small">{{ total }} catatan</span>
+</form>
+<div class="card flush">
+<table class="tbl compact">
+  <thead><tr><th>Waktu</th><th>Pengguna</th><th>Aktivitas</th><th>Objek</th><th>Rincian</th></tr></thead>
+  <tbody>
+  {% for r in rows %}
+    <tr>
+      <td>{{ r.at|dt }}</td>
+      <td>{{ r.user.username if r.user else '-' }}</td>
+      <td class="mono">{{ r.action }}</td>
+      <td>{{ r.entity }}{% if r.entity_id %} #{{ r.entity_id }}{% endif %}</td>
+      <td class="small muted">{% if r.detail %}{% for k, v in r.detail.items() %}{{ k }}: {{ v }}{{ '; ' if not loop.last }}{% endfor %}{% endif %}</td>
+    </tr>
+  {% else %}<tr><td colspan="5" class="muted center">Belum ada catatan.</td></tr>{% endfor %}
+  </tbody>
+</table>
+</div>
+{% if pages > 1 %}
+<div class="pager">
+  {% if page > 1 %}<a class="btn small" href="?action={{ action }}&page={{ page - 1 }}">‹ Sebelumnya</a>{% endif %}
+  <span class="muted small">Halaman {{ page }} dari {{ pages }}</span>
+  {% if page < pages %}<a class="btn small" href="?action={{ action }}&page={{ page + 1 }}">Berikutnya ›</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

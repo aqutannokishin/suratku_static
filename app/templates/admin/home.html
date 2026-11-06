@@ -1,0 +1,17 @@
+{% extends "base.html" %}
+{% block title %}Admin{% endblock %}
+{% block content %}
+<h1>Admin</h1>
+{% include "admin/_nav.html" %}
+<div class="grid cards">
+  <a class="card tile" href="/admin/users"><h3>{{ stats.users }} pengguna aktif</h3><p class="muted">Tambah pengguna, atur ulang password.</p></a>
+  <a class="card tile" href="/admin/people"><h3>{{ stats.people }} orang</h3><p class="muted">Data master nama, NIP, golongan, jabatan. Bisa impor dari Excel.</p></a>
+  <a class="card tile" href="/admin/series"><h3>{{ stats.series }} seri nomor</h3><p class="muted">Pola nomor surat dan aturan reset.</p></a>
+  <a class="card tile" href="/admin/templates"><h3>Template Word</h3><p class="muted">Unggah template surat resmi kantor.</p></a>
+</div>
+<div class="card">
+  <h3>Status server</h3>
+  <p>PDF: {% if pdf_ok %}<span class="badge ok">LibreOffice ditemukan</span>{% else %}<span class="badge void">LibreOffice tidak ditemukan</span> — hanya file Word yang bisa dibuat. Pasang LibreOffice di komputer server.{% endif %}</p>
+  <p class="muted small">Nama aplikasi dan nama kantor di pojok atas bisa diubah di file <span class="mono">.env</span> (APP_NAME, ORG_NAME).</p>
+</div>
+{% endblock %}

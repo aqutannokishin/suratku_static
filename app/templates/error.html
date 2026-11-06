@@ -1,0 +1,10 @@
+{% extends "base.html" %}
+{% block title %}{{ title }}{% endblock %}
+{% block mainclass %}narrow center{% endblock %}
+{% block content %}
+<div class="card auth">
+  <h1>{{ title }}</h1>
+  <p>{{ message }}</p>
+  <p><a class="btn" href="/">Kembali ke beranda</a></p>
+</div>
+{% endblock %}

@@ -1,0 +1,27 @@
+{% extends "base.html" %}
+{% block title %}Dokumen jadi{% endblock %}
+{% block mainclass %}narrow{% endblock %}
+{% block content %}
+<p class="crumb"><a href="/">Beranda</a> › {{ spec.name }}</p>
+<div class="card result">
+  <div class="ok-mark">✓</div>
+  <h1>Dokumen berhasil dibuat</h1>
+  {% if doc.nomor %}
+  <p class="muted">Nomor surat</p>
+  <p class="big-num mono" id="nomor-text">{{ doc.nomor }}</p>
+  <button class="btn small" type="button" data-copy="#nomor-text">Salin nomor</button>
+  {% endif %}
+
+  {% if result.pdf_error %}<div class="flash warn">{{ result.pdf_error }}</div>{% endif %}
+  {% for w in result.warnings %}<div class="flash warn">{{ w }}</div>{% endfor %}
+
+  <div class="row-actions center-row">
+    <a class="btn primary" href="/documents/{{ doc.id }}/download?fmt=docx">Unduh Word (.docx)</a>
+    {% if doc.pdf_path %}<a class="btn primary" href="/documents/{{ doc.id }}/download?fmt=pdf">Unduh PDF</a>{% endif %}
+  </div>
+  <div class="row-actions center-row">
+    <a class="btn" href="/documents/new/{{ spec.code }}">Buat {{ spec.name }} lagi</a>
+    <a class="btn ghost" href="/documents">Lihat riwayat</a>
+  </div>
+</div>
+{% endblock %}

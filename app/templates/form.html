@@ -1,0 +1,107 @@
+{% extends "base.html" %}
+{% from "partials/person_row.html" import person_row %}
+{% block title %}{{ spec.name }}{% endblock %}
+{% block content %}
+<p class="crumb"><a href="/">Beranda</a> › {{ spec.name }}</p>
+<h1>{{ spec.name }}</h1>
+<p class="muted">{{ spec.description }} Kolom bertanda <span class="req">*</span> wajib diisi.</p>
+
+{% if errors %}
+<div class="flash error" role="alert">
+  <b>Belum bisa dibuat:</b>
+  <ul>{% for e in errors %}<li>{{ e }}</li>{% endfor %}</ul>
+</div>
+{% endif %}
+
+<form method="post" action="/documents/new/{{ spec.code }}" id="docform" data-code="{{ spec.code }}"
+      data-has-series="{{ 1 if spec.series else 0 }}">
+
+  {% if spec.series %}
+  <section class="card" id="nomor-box">
+    <h2>Nomor surat</h2>
+    {% set mode = values.get('nomor_mode', 'auto') %}
+    <div class="mode-list">
+      <label class="mode"><input type="radio" name="nomor_mode" value="auto" {{ 'checked' if mode == 'auto' }}>
+        <span><b>Otomatis</b> — nomor berikutnya: <span class="mono big-num" id="next-preview">…</span></span></label>
+
+      <label class="mode"><input type="radio" name="nomor_mode" value="pick" {{ 'checked' if mode == 'pick' }}>
+        <span><b>Pilih dari nomor tersedia</b> <span class="muted small">(nomor batal, terlompat, atau yang pernah Anda ambil)</span></span></label>
+      <div class="mode-body" data-for="pick">
+        <select name="nomor_pick" id="nomor-pick" data-saved="{{ values.get('nomor_pick','') }}"><option value="">— belum ada nomor tersedia —</option></select>
+      </div>
+
+      <label class="mode"><input type="radio" name="nomor_mode" value="manual" {{ 'checked' if mode == 'manual' }}>
+        <span><b>Ketik nomor urut sendiri</b> <span class="muted small">(hanya angka urutnya, mis. 45)</span></span></label>
+      <div class="mode-body" data-for="manual">
+        <input type="number" min="1" name="nomor_manual" id="nomor-manual" value="{{ values.get('nomor_manual','') }}" placeholder="mis. 45">
+        <span class="mono muted" id="manual-preview"></span>
+        <label class="check"><input type="checkbox" name="confirm_gap" {{ 'checked' if values.get('confirm_gap') }}>
+          Saya sengaja melompati nomor (nomor di antaranya akan terlewat)</label>
+      </div>
+    </div>
+    <div class="row-actions">
+      <button type="button" class="btn small" id="reserve-only">Ambil nomor saja (surat belum dibuat)</button>
+      <span class="muted small" id="reserve-msg"></span>
+    </div>
+  </section>
+  {% endif %}
+
+  <section class="card">
+    <h2>Isi dokumen</h2>
+    {% for f in spec.fields %}
+      {% if f.kind == 'person' or f.kind == 'person_multi' %}
+        <div class="field">
+          <div class="field-label">{{ f.label }}{% if f.required %} <span class="req">*</span>{% endif %}</div>
+          <div class="person-list" id="rows-{{ f.key }}" data-key="{{ f.key }}" data-multi="{{ 1 if f.kind == 'person_multi' else 0 }}">
+            {% for row in prefill[f.key] %}
+              {{ person_row(f.key, loop.index0, row, golongan, jabatan, roles, removable=(f.kind == 'person_multi')) }}
+            {% endfor %}
+          </div>
+          {% if f.kind == 'person_multi' %}
+            <button type="button" class="btn small add-row" data-key="{{ f.key }}">+ Tambah orang</button>
+            <template id="tpl-{{ f.key }}">{{ person_row(f.key, '__IDX__', {}, golongan, jabatan, roles) }}</template>
+          {% endif %}
+        </div>
+      {% else %}
+        <div class="field">
+          <label for="f-{{ f.key }}">{{ f.label }}{% if f.required %} <span class="req">*</span>{% endif %}</label>
+          {% set val = values.get(f.key, today if (f.kind == 'date' and f.key == 'tanggal') else '') %}
+          {% if f.kind == 'textarea' %}
+            <textarea id="f-{{ f.key }}" name="{{ f.key }}" rows="4" {{ 'required' if f.required }}>{{ val }}</textarea>
+          {% elif f.kind == 'date' %}
+            <input id="f-{{ f.key }}" type="date" name="{{ f.key }}" value="{{ val }}" {{ 'required' if f.required }}>
+          {% elif f.kind == 'number' %}
+            <input id="f-{{ f.key }}" type="number" name="{{ f.key }}" value="{{ val }}" {{ 'required' if f.required }}>
+          {% elif f.kind == 'choice' %}
+            <select id="f-{{ f.key }}" name="{{ f.key }}" {{ 'required' if f.required }}>
+              <option value=""></option>
+              {% for c in f.choices %}<option {{ 'selected' if c == val }}>{{ c }}</option>{% endfor %}
+            </select>
+          {% else %}
+            <input id="f-{{ f.key }}" name="{{ f.key }}" value="{{ val }}" {{ 'required' if f.required }}>
+          {% endif %}
+          {% if f.help %}<div class="muted small">{{ f.help }}</div>{% endif %}
+        </div>
+      {% endif %}
+    {% endfor %}
+    <label class="check">
+      <input type="checkbox" name="update_master" {{ 'checked' if values.get('update_master') }}>
+      Simpan perubahan NIP / golongan / jabatan di atas ke data master
+      <span class="muted small">(kalau tidak dicentang, perubahan hanya berlaku untuk dokumen ini)</span>
+    </label>
+  </section>
+
+  <section class="card">
+    <h2>Hasil</h2>
+    <label class="check">
+      <input type="checkbox" name="make_pdf" {{ 'checked' if (values.get('make_pdf') if values else spec.pdf_default) and pdf_ok }} {{ 'disabled' if not pdf_ok }}>
+      Buat juga file PDF {% if not pdf_ok %}<span class="muted small">(LibreOffice tidak ditemukan di server, hanya Word yang tersedia)</span>{% else %}<span class="muted small">(sekitar 3–10 detik lebih lama)</span>{% endif %}
+    </label>
+    <div class="row-actions">
+      <button class="btn primary" type="submit" id="submit-btn">Buat dokumen</button>
+      <a class="btn ghost" href="/">Batal</a>
+      <span class="muted small" id="busy-msg" hidden>Sedang membuat dokumen, jangan tutup halaman…</span>
+    </div>
+  </section>
+</form>
+{% endblock %}

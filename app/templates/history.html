@@ -1,0 +1,59 @@
+{% extends "base.html" %}
+{% block title %}Riwayat dokumen{% endblock %}
+{% block content %}
+<h1>Riwayat dokumen</h1>
+<form method="get" class="filters">
+  <select name="type" onchange="this.form.submit()">
+    <option value="">Semua jenis</option>
+    {% for code, s in REGISTRY.items() %}<option value="{{ code }}" {{ 'selected' if type == code }}>{{ s.name }}</option>{% endfor %}
+  </select>
+  <input name="q" value="{{ q }}" placeholder="Cari nomor atau nama…">
+  <button class="btn" type="submit">Cari</button>
+  {% if type or q %}<a class="btn ghost" href="/documents">Reset</a>{% endif %}
+  <span class="muted small">{{ total }} dokumen</span>
+</form>
+
+<div class="card flush">
+<table class="tbl">
+  <thead><tr><th>Waktu</th><th>Jenis</th><th>Nomor</th><th>Dibuat oleh</th><th>Unduh</th>{% if user.is_admin %}<th></th>{% endif %}</tr></thead>
+  <tbody>
+  {% for d in docs %}
+    <tr class="{{ 'cancelled' if d.cancelled }}">
+      <td>{{ d.created_at|dt }}</td>
+      <td>{{ REGISTRY[d.doctype_code].name if d.doctype_code in REGISTRY else d.doctype_code }}</td>
+      <td class="mono">{{ d.nomor or '-' }}
+        {% if d.cancelled %}<span class="badge void" title="{{ d.cancel_reason }}">batal</span>{% endif %}</td>
+      <td>{{ d.user.full_name }}</td>
+      <td>
+        <a href="/documents/{{ d.id }}/download?fmt=docx">Word</a>
+        {% if d.pdf_path %} · <a href="/documents/{{ d.id }}/download?fmt=pdf">PDF</a>{% endif %}
+      </td>
+      {% if user.is_admin %}
+      <td class="right">
+        {% if not d.cancelled %}
+        <details class="inline-pop">
+          <summary class="link">Batalkan</summary>
+          <form method="post" action="/documents/{{ d.id }}/cancel" class="pop">
+            <input name="reason" placeholder="Alasan pembatalan" required>
+            <button class="btn small danger" type="submit">Batalkan dokumen</button>
+          </form>
+        </details>
+        {% endif %}
+      </td>
+      {% endif %}
+    </tr>
+  {% else %}
+    <tr><td colspan="6" class="muted center">Tidak ada dokumen.</td></tr>
+  {% endfor %}
+  </tbody>
+</table>
+</div>
+
+{% if pages > 1 %}
+<div class="pager">
+  {% if page > 1 %}<a class="btn small" href="?type={{ type }}&q={{ q }}&page={{ page - 1 }}">‹ Sebelumnya</a>{% endif %}
+  <span class="muted small">Halaman {{ page }} dari {{ pages }}</span>
+  {% if page < pages %}<a class="btn small" href="?type={{ type }}&q={{ q }}&page={{ page + 1 }}">Berikutnya ›</a>{% endif %}
+</div>
+{% endif %}
+{% endblock %}

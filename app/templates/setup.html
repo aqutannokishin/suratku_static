@@ -1,0 +1,26 @@
+{% extends "base.html" %}
+{% block title %}Pengaturan awal{% endblock %}
+{% block mainclass %}narrow center{% endblock %}
+{% block content %}
+<div class="card auth">
+  <div class="brand big"><span class="brand-mark">S</span>{{ settings.app_name }}</div>
+  <h1>Buat admin pertama</h1>
+  <p class="muted">Ini hanya muncul sekali, saat belum ada pengguna sama sekali. Akun ini bisa menambah pengguna lain.</p>
+  {% if error %}<div class="flash error">{{ error }}</div>{% endif %}
+  <form method="post" action="/setup">
+    <label>Nama lengkap
+      <input name="full_name" value="{{ full_name or '' }}" required autofocus>
+    </label>
+    <label>Username <span class="muted small">(huruf kecil tanpa spasi, mis. budi)</span>
+      <input name="username" value="{{ username or '' }}" required autocomplete="username">
+    </label>
+    <label>Password <span class="muted small">(minimal 8 karakter)</span>
+      <input name="password" type="password" required minlength="8" autocomplete="new-password">
+    </label>
+    <label>Ulangi password
+      <input name="password2" type="password" required minlength="8" autocomplete="new-password">
+    </label>
+    <button class="btn primary wide" type="submit">Buat admin &amp; masuk</button>
+  </form>
+</div>
+{% endblock %}

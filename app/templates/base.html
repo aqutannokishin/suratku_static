@@ -1,0 +1,36 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <title>{% block title %}{{ settings.app_name }}{% endblock %} · {{ settings.app_name }}</title>
+  <link rel="stylesheet" href="/static/tom-select.css">
+  <link rel="stylesheet" href="/static/app.css">
+</head>
+<body>
+{% if user %}
+<header class="topbar">
+  <a class="brand" href="/"><span class="brand-mark">S</span>{{ settings.app_name }}{% if settings.org_name %}<small>{{ settings.org_name }}</small>{% endif %}</a>
+  <nav>
+    <a href="/" class="{{ 'on' if request.url.path == '/' }}">Beranda</a>
+    <a href="/documents" class="{{ 'on' if request.url.path == '/documents' }}">Riwayat</a>
+    <a href="/numbers" class="{{ 'on' if request.url.path == '/numbers' }}">Nomor Surat</a>
+    {% if user.is_admin %}<a href="/admin" class="{{ 'on' if request.url.path.startswith('/admin') }}">Admin</a>{% endif %}
+  </nav>
+  <div class="who">
+    <a href="/account" title="Ganti password">{{ user.full_name }}</a>
+    <form method="post" action="/logout"><button class="link" type="submit">Keluar</button></form>
+  </div>
+</header>
+{% endif %}
+<main class="{% block mainclass %}{% endblock %}">
+  {% for kind, msg in flashes %}
+    <div class="flash {{ kind }}" role="status">{{ msg }}</div>
+  {% endfor %}
+  {% block content %}{% endblock %}
+</main>
+<script src="/static/tom-select.complete.min.js"></script>
+<script src="/static/app.js"></script>
+{% block scripts %}{% endblock %}
+</body>
+</html>
